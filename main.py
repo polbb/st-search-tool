@@ -53,7 +53,7 @@ if data:
             Key={'companyID': company_id}
         )
         if 'Item' in response:
-            s3_keys.append(response['Item']['s3Key'])
+            s3_keys.append(response['Item']['object_key'])
 
     st.write(s3_keys)
 
