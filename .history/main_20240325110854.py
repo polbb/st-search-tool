@@ -1,8 +1,5 @@
 import streamlit as st
 import boto3
-from bs4 import BeautifulSoup
-from fuzzywuzzy import fuzz
-import re
 
 # Streamlit UI
 st.set_page_config(layout="wide")  # Force wide mode
@@ -16,7 +13,6 @@ aws_default_region = st.secrets.AWS_DEFAULT_REGION
 
 # AWS Services Clients
 dynamodb = boto3.resource('dynamodb', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_default_region)
-s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_default_region)
 
 st.title("ArgoXai")
 col1, col2, _, _, _, _, _, _ = st.columns([3,3,1,1,1,1,1,1])
@@ -57,9 +53,6 @@ if data:
     progress_bar = st.progress(0)
     total_companies = len(company_ids)
 
-    # Initialize list to store sentences matching the fuzzy search
-    matching_sentences = []
-
     # Collect s3Keys from company_xhtml table using collected companyIDs
     for index, company_id in enumerate(company_ids):
         st.write(f'Processing company: {company_id}')
@@ -67,30 +60,10 @@ if data:
             Key={'companyID': company_id}
         )
         if 'Item' in response:
-            s3_key = response['Item']['object_key']
-            s3_keys.append(s3_key)
-            
-            # Retrieve the xhtml file content from S3
-            s3_object = s3.get_object(Bucket='company-house', Key=s3_key)
-            s3_content = s3_object['Body'].read().decode('utf-8')
-            
-            # Use BeautifulSoup to extract all text from the xhtml file
-            soup = BeautifulSoup(s3_content, 'html.parser')
-            text = soup.get_text(separator=' ', strip=True)
-            
-            # Split the text into sentences
-            sentences = re.split(r'(?<=[.!?]) +', text)
-            
-            # Perform fuzzy search on each sentence
-            for sentence in sentences:
-                if fuzz.partial_ratio(fuzzy_search.lower(), sentence.lower()) > 80:
-                    sentence_index = sentences.index(sentence)
-                    context = ' '.join(sentences[max(0, sentence_index-1):min(len(sentences), sentence_index+2)])
-                    matching_sentences.append(context)
-                    break  # Assuming we only need the first match per company
+            s3_keys.append(response['Item']['object_key'])
         
         # Update progress bar
         progress_bar.progress((index + 1) / total_companies)
 
-    st.write('Matching Sentences:', matching_sentences)
+    st.write(s3_keys)
 
