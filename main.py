@@ -55,7 +55,7 @@ if data:
         )
         if 'Item' in response:
             s3_keys.append(response['Item']['object_key'])
-            st.write(f'S3 key: {response['Item']['object_key']}')
+            st.write(f"S3 key: {response['Item']['object_key']}")
 
     st.write(s3_keys)
 
