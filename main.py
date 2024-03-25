@@ -22,6 +22,7 @@ data = st.button("Search")
 st.divider()
 
 if data:
+    st.write("inside if data")
     # Display the collected companyIDs
     table = dynamodb.Table('company_ratios')
 
