@@ -49,11 +49,13 @@ if data:
 
     # Collect s3Keys from company_xhtml table using collected companyIDs
     for company_id in company_ids:
+        st.write(f'Company: {company_id}')
         response = xhtml_table.get_item(
             Key={'companyID': company_id}
         )
         if 'Item' in response:
             s3_keys.append(response['Item']['object_key'])
+            st.write(f'S3 key: {response['Item']['object_key']}')
 
     st.write(s3_keys)
 
