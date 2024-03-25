@@ -44,19 +44,26 @@ if data:
         )
         company_ids.extend(item['companyID'] for item in response['Items'])
 
+    st.write(f'Number of Non-Micro companies: {len(company_ids)}')
+
     # Initialize empty list to store s3Keys
     s3_keys = []
 
+    # Add a progress bar to visualize s3Key extraction progress
+    progress_bar = st.progress(0)
+    total_companies = len(company_ids)
+
     # Collect s3Keys from company_xhtml table using collected companyIDs
-    for company_id in company_ids:
-        st.write(f'Company: {company_id}')
+    for index, company_id in enumerate(company_ids):
+        st.write(f'Processing company: {company_id}')
         response = xhtml_table.get_item(
             Key={'companyID': company_id}
         )
         if 'Item' in response:
             s3_keys.append(response['Item']['object_key'])
-            st.write(f"S3 key: {response['Item']['object_key']}")
+        
+        # Update progress bar
+        progress_bar.progress((index + 1) / total_companies)
 
     st.write(s3_keys)
-
 
