@@ -77,19 +77,24 @@ if data:
             # Split the text into sentences
             sentences = re.split(r'(?<=[.!?]) +', text)
             
+            # Initialize a list to store matching sentences for the current company
+            company_matches = []
+            
             # Perform fuzzy search on each sentence
             for sentence in sentences:
                 if fuzz.partial_ratio(fuzzy_search.lower(), sentence.lower()) > 80:
                     sentence_index = sentences.index(sentence)
                     context = ' '.join(sentences[max(0, sentence_index-1):min(len(sentences), sentence_index+2)])
-                    # Append companyID and matching sentence to DataFrame
-                    new_row = {'CompanyID': company_id, 'Matching Sentence': context}
-                    matching_sentences_df = pd.concat([matching_sentences_df, pd.DataFrame([new_row])], ignore_index=True)
-                    break  # Assuming we only need the first match per company
+                    # Append matching sentence to the list for the current company
+                    company_matches.append({'CompanyID': company_id, 'Matching Sentence': context})
+            
+            # If there are matches, append them to the DataFrame and display
+            if company_matches:
+                matching_sentences_df = pd.concat([matching_sentences_df, pd.DataFrame(company_matches)], ignore_index=True)
+                # Display matching sentences in a table format for each company
+                st.table(matching_sentences_df)
         
         # Update progress bar
         progress_bar.progress((index + 1) / total_companies)
 
-    # Display matching sentences in a table format
-    st.table(matching_sentences_df)
 
