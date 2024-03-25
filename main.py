@@ -21,34 +21,40 @@ data = st.button("Search")
 st.divider()
 
 if data:
-    st.write("inside if data")
     # Display the collected companyIDs
-    table = dynamodb.Table('company_ratios')
-    st.write("after db table")
+    ratios_table = dynamodb.Table('company_ratios')
+    xhtml_table = dynamodb.Table('company_xhtml')
 
     # Initialize empty list to store companyIDs where non_micro == True
     company_ids = []
-    st.write(company_ids)
 
-    # Initialize the scan
-    response = table.scan(
+    # Initialize the scan for company_ratios table
+    response = ratios_table.scan(
         FilterExpression=boto3.dynamodb.conditions.Attr('non_micro').eq(True)
     )
-
-    st.write(response)
 
     # Collect companyIDs
     company_ids.extend(item['companyID'] for item in response['Items'])
 
-    # Handle pagination if there's more data to scan
-    while True:
-        if 'LastEvaluatedKey' not in response:
-            break
-        response = table.scan(
+    # Handle pagination if there's more data to scan in company_ratios table
+    while 'LastEvaluatedKey' in response:
+        response = ratios_table.scan(
             FilterExpression=boto3.dynamodb.conditions.Attr('non_micro').eq(True),
             ExclusiveStartKey=response['LastEvaluatedKey']
         )
         company_ids.extend(item['companyID'] for item in response['Items'])
-        
-    st.write("Companies with non_micro == True:", company_ids)
+
+    # Initialize empty list to store s3Keys
+    s3_keys = []
+
+    # Collect s3Keys from company_xhtml table using collected companyIDs
+    for company_id in company_ids:
+        response = xhtml_table.get_item(
+            Key={'companyID': company_id}
+        )
+        if 'Item' in response:
+            s3_keys.append(response['Item']['s3Key'])
+
+    st.write(s3_keys)
+
 
