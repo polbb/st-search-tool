@@ -83,7 +83,8 @@ if data:
                     sentence_index = sentences.index(sentence)
                     context = ' '.join(sentences[max(0, sentence_index-1):min(len(sentences), sentence_index+2)])
                     # Append companyID and matching sentence to DataFrame
-                    matching_sentences_df = matching_sentences_df.append({'CompanyID': company_id, 'Matching Sentence': context}, ignore_index=True)
+                    new_row = {'CompanyID': company_id, 'Matching Sentence': context}
+                    matching_sentences_df = pd.concat([matching_sentences_df, pd.DataFrame([new_row])], ignore_index=True)
                     break  # Assuming we only need the first match per company
         
         # Update progress bar
