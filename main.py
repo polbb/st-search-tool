@@ -21,7 +21,7 @@ dynamodb = boto3.resource('dynamodb', aws_access_key_id=aws_access_key_id, aws_s
 
 st.title("ArgoXai")
 col1, col2, _, _, _, _, _, _ = st.columns([3,3,1,1,1,1,1,1])
-fuzzy_search = col1.text_input()
+fuzzy_search = col1.text_input("Search Documents")
 data = st.button("Search")
 
 if data:
