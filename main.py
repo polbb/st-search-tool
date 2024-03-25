@@ -51,9 +51,6 @@ if data:
 
     st.write(f'Number of Non-Micro companies: {len(company_ids)}')
 
-    # Initialize empty DataFrame to store matching sentences with companyID
-    matching_sentences_df = pd.DataFrame(columns=['CompanyID', 'Matching Sentence'])
-
     # Add a progress bar to visualize s3Key extraction progress
     progress_bar = st.progress(0)
     total_companies = len(company_ids)
@@ -88,13 +85,11 @@ if data:
                     # Append matching sentence to the list for the current company
                     company_matches.append({'CompanyID': company_id, 'Matching Sentence': context})
             
-            # If there are matches, append them to the DataFrame and display
+            # If there are matches, display them as key-value pairs
             if company_matches:
-                matching_sentences_df = pd.concat([matching_sentences_df, pd.DataFrame(company_matches)], ignore_index=True)
-                # Display matching sentences in a table format for each company
-                st.table(matching_sentences_df)
+                for match in company_matches:
+                    st.write(f"CompanyID: {match['CompanyID']}, Matching Sentence: {match['Matching Sentence']}")
         
         # Update progress bar
         progress_bar.progress((index + 1) / total_companies)
-
 
