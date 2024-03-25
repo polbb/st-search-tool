@@ -14,7 +14,6 @@ aws_default_region = st.secrets.AWS_DEFAULT_REGION
 # AWS Services Clients
 dynamodb = boto3.resource('dynamodb', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_default_region)
 
-
 st.title("ArgoXai")
 col1, col2, _, _, _, _, _, _ = st.columns([3,3,1,1,1,1,1,1])
 fuzzy_search = col1.text_input("Search Documents")
@@ -42,12 +41,14 @@ if data:
     company_ids.extend(item['companyID'] for item in response['Items'])
 
     # Handle pagination if there's more data to scan
-    while 'LastEvaluatedKey' in response:
+    while True:
+        if 'LastEvaluatedKey' not in response:
+            break
         response = table.scan(
             FilterExpression=boto3.dynamodb.conditions.Attr('non_micro').eq(True),
             ExclusiveStartKey=response['LastEvaluatedKey']
         )
         company_ids.extend(item['companyID'] for item in response['Items'])
-        st.write("Companies with non_micro == True:", company_ids)
-        st.write("Companies with non_micro == True:")
+        
+    st.write("Companies with non_micro == True:", company_ids)
 
