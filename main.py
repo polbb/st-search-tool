@@ -23,6 +23,7 @@ st.title("ArgoXai")
 col1, col2, _, _, _, _, _, _ = st.columns([3,3,1,1,1,1,1,1])
 fuzzy_search = col1.text_input("Search Documents")
 data = st.button("Search")
+st.divider()
 
 if data:
     # Ensure the CIK is a string and has leading zeros if necessary
