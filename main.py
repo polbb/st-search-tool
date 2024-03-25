@@ -85,10 +85,13 @@ if data:
                     # Append matching sentence to the list for the current company
                     company_matches.append({'CompanyID': company_id, 'Matching Sentence': context})
             
-            # If there are matches, display them as key-value pairs
+            # If there are matches, display them in a more readable way without using dataframes
             if company_matches:
+                st.markdown("### Matching Results")
                 for match in company_matches:
-                    st.write(f"CompanyID: {match['CompanyID']}, Matching Sentence: {match['Matching Sentence']}")
+                    st.markdown(f"**CompanyID:** {match['CompanyID']}")
+                    st.markdown(f"**Matching Sentence:** {match['Matching Sentence']}")
+                    st.markdown("---")  # Add a separator line for readability
         
         # Update progress bar
         progress_bar.progress((index + 1) / total_companies)
