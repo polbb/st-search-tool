@@ -87,12 +87,10 @@ if data:
             
             # If there are matches, display them in a more readable way without using dataframes
             if company_matches:
-                st.markdown("### Matching Results")
+                st.markdown(f"### Matching Results for Company Number: {company_id}")
                 for match in company_matches:
-                    st.markdown(f"**CompanyID:** {match['CompanyID']}")
                     st.markdown(f"**Matching Sentence:** {match['Matching Sentence']}")
                     st.markdown("---")  # Add a separator line for readability
-        
         # Update progress bar
         progress_bar.progress((index + 1) / total_companies)
 
