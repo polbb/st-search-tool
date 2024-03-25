@@ -25,14 +25,18 @@ if data:
     st.write("inside if data")
     # Display the collected companyIDs
     table = dynamodb.Table('company_ratios')
+    st.write("after db table")
 
     # Initialize empty list to store companyIDs where non_micro == True
     company_ids = []
+    st.write(company_ids)
 
     # Initialize the scan
     response = table.scan(
         FilterExpression=boto3.dynamodb.conditions.Attr('non_micro').eq(True)
     )
+
+    st.write(response)
 
     # Collect companyIDs
     company_ids.extend(item['companyID'] for item in response['Items'])
