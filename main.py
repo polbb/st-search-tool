@@ -1,8 +1,9 @@
-import streamlit as st
 import boto3
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 import re
+import streamlit as st
+import pandas as pd
 
 # Streamlit UI
 st.set_page_config(layout="wide")  # Force wide mode
@@ -50,25 +51,20 @@ if data:
 
     st.write(f'Number of Non-Micro companies: {len(company_ids)}')
 
-    # Initialize empty list to store s3Keys
-    s3_keys = []
+    # Initialize empty DataFrame to store matching sentences with companyID
+    matching_sentences_df = pd.DataFrame(columns=['CompanyID', 'Matching Sentence'])
 
     # Add a progress bar to visualize s3Key extraction progress
     progress_bar = st.progress(0)
     total_companies = len(company_ids)
 
-    # Initialize list to store sentences matching the fuzzy search
-    matching_sentences = []
-
     # Collect s3Keys from company_xhtml table using collected companyIDs
     for index, company_id in enumerate(company_ids):
-        st.write(f'Processing company: {company_id}')
         response = xhtml_table.get_item(
             Key={'companyID': company_id}
         )
         if 'Item' in response:
             s3_key = response['Item']['object_key']
-            s3_keys.append(s3_key)
             
             # Retrieve the xhtml file content from S3
             s3_object = s3.get_object(Bucket='company-house', Key=s3_key)
@@ -86,11 +82,13 @@ if data:
                 if fuzz.partial_ratio(fuzzy_search.lower(), sentence.lower()) > 80:
                     sentence_index = sentences.index(sentence)
                     context = ' '.join(sentences[max(0, sentence_index-1):min(len(sentences), sentence_index+2)])
-                    matching_sentences.append(context)
+                    # Append companyID and matching sentence to DataFrame
+                    matching_sentences_df = matching_sentences_df.append({'CompanyID': company_id, 'Matching Sentence': context}, ignore_index=True)
                     break  # Assuming we only need the first match per company
         
         # Update progress bar
         progress_bar.progress((index + 1) / total_companies)
 
-    st.write('Matching Sentences:', matching_sentences)
+    # Display matching sentences in a table format
+    st.table(matching_sentences_df)
 
