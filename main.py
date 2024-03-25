@@ -44,4 +44,5 @@ if data:
         )
         company_ids.extend(item['companyID'] for item in response['Items'])
         st.write("Companies with non_micro == True:", company_ids)
+        st.write("Companies with non_micro == True:")
 
