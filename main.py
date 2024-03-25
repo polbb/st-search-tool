@@ -79,7 +79,7 @@ if data:
             
             # Perform fuzzy search on each sentence
             for sentence in sentences:
-                if fuzz.partial_ratio(fuzzy_search.lower(), sentence.lower()) > 80:
+                if fuzz.partial_ratio(fuzzy_search.lower(), sentence.lower()) >= 100:
                     sentence_index = sentences.index(sentence)
                     context = ' '.join(sentences[max(0, sentence_index-1):min(len(sentences), sentence_index+2)])
                     # Append matching sentence to the list for the current company
