@@ -1,3 +1,4 @@
+import datetime
 import boto3
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
@@ -6,6 +7,7 @@ import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import json
 
 # Streamlit UI
 st.set_page_config(layout="wide")  # Force wide mode
@@ -14,7 +16,7 @@ with open("style.css") as css:
 
 # AWS Credentials
 aws_access_key_id = st.secrets.AWS_ACCESS_KEY_ID
-aws_secret_access_key = st.secrets.AWS_SECRET_ACCESS_KEY
+aws_secret_access_key = st.secrets.AWS_SECRET_ACCESS_KEYm
 aws_default_region = st.secrets.AWS_DEFAULT_REGION
 
 # load_dotenv('./.env.txt')
@@ -34,7 +36,7 @@ st.divider()
 
 if data:
     ratios_table = dynamodb.Table('company_ratios')
-    xhtml_table = dynamodb.Table('company_xhtml')
+    xhtml_table = dynamodb.Table('company_xhtml_data')
     company_ids = []
     response = ratios_table.scan(
         FilterExpression=boto3.dynamodb.conditions.Attr('non_micro').eq(True)
@@ -54,11 +56,14 @@ if data:
     total_companies = len(company_ids)
 
     for index, company_id in enumerate(company_ids):
-        response = xhtml_table.get_item(
-            Key={'companyID': company_id}
+        response = xhtml_table.query(
+            KeyConditionExpression=boto3.dynamodb.conditions.Key('companyID').eq(company_id),
+            ScanIndexForward=False,  # This will ensure the results are returned in descending order
+            Limit=1  # We only need the latest item
         )
-        if 'Item' in response:
-            s3_key = response['Item']['object_key']
+        if 'Items' in response and response['Items']:
+            latest_item = response['Items'][0]  # Get the first item which is the latest due to ScanIndexForward=False
+            s3_key = latest_item['s3key']
             s3_object = s3.get_object(Bucket='company-house', Key=s3_key)
             s3_content = s3_object['Body'].read().decode('utf-8')
             soup = BeautifulSoup(s3_content, 'html.parser')
