@@ -16,7 +16,7 @@ with open("style.css") as css:
 
 # AWS Credentials
 aws_access_key_id = st.secrets.AWS_ACCESS_KEY_ID
-aws_secret_access_key = st.secrets.AWS_SECRET_ACCESS_KEYm
+aws_secret_access_key = st.secrets.AWS_SECRET_ACCESS_KEY
 aws_default_region = st.secrets.AWS_DEFAULT_REGION
 
 # load_dotenv('./.env.txt')
